@@ -1,6 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { roundAmount } from "@/utils/round";
 
 import { prisma } from "@/utils/prisma";
 
@@ -13,7 +12,7 @@ type Data = {
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { data: PrismaData } = prisma;
+  const { expense } = prisma;
   const {
     method,
     body,
@@ -23,7 +22,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const selectedId = parseInt(id as string);
 
   if (method === "DELETE") {
-    const data = await PrismaData.delete({
+    const data = await expense.delete({
       where: {
         id: selectedId,
       },
@@ -32,7 +31,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   if (method === "GET") {
-    const data = await PrismaData.findFirst({
+    const data = await expense.findFirst({
       select: {
         id: true,
         amount: true,
@@ -56,7 +55,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (method === "PUT") {
     const { amount, categoryId, date, info } = body as Data;
 
-    const data = await PrismaData.update({
+    const data = await expense.update({
       select: {
         id: true,
         amount: true,
