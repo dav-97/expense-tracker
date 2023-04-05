@@ -3,27 +3,33 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { roundAmount } from "@/utils/formatNumbers";
 
 import { prisma } from "@/utils/prisma";
+import { Prisma } from "@prisma/client";
 
-type Data = {
-  id: number;
-  amount: number;
-  date: string;
-  info: string;
-  categoryId: string;
+type CreateType = Prisma.ExpenseCreateWithoutCategoryInput & {
+  category: string;
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { expense } = prisma;
   const { method, body, query } = req;
   if (method === "POST") {
-    const { amount, categoryId, date, info } = body as Data;
+    const { amount, date, info, category } = body as CreateType;
 
     const data = await expense.create({
       data: {
         amount,
         date: date || new Date(),
         info,
-        categoryId,
+        category: {
+          connectOrCreate: {
+            create: {
+              name: category,
+            },
+            where: {
+              name: category,
+            },
+          },
+        },
       },
     });
     return res.status(200).json(data);
@@ -40,7 +46,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         },
       }),
       prisma.expense.findMany({
-        skip: PAGE || 1,
+        skip: PAGE ?? 1,
         take: parseInt(perPage as string),
         select: {
           id: true,

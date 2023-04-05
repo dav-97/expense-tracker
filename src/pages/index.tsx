@@ -1,6 +1,5 @@
-import { getExpenses } from "@/api/expense";
+import { Expense, getExpenses } from "@/api/expense";
 import Pagination from "@/components/Pagination";
-import { Expense } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { DateTime } from "luxon";
 import { Items } from "@/components/expense/Items";
@@ -37,6 +36,9 @@ const Overview = () => {
     );
 
     if (today === date) {
+      if (dates[0] && dates[0].text === "Today") {
+        return dates[0].data.push(expense);
+      }
       return dates.push({
         text: "Today",
         data: [expense],

@@ -2,14 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { prisma } from "@/utils/prisma";
-
-type Data = {
-  id: number;
-  amount: number;
-  date: string;
-  info: string;
-  categoryId: string;
-};
+import { Prisma } from "@prisma/client";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { expense } = prisma;
@@ -53,7 +46,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(200).json(data);
   }
   if (method === "PUT") {
-    const { amount, categoryId, date, info } = body as Data;
+    const updateThisData = body as Prisma.ExpenseUpdateWithoutCategoryInput;
 
     const data = await expense.update({
       select: {
@@ -70,12 +63,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       where: {
         id: selectedId,
       },
-      data: {
-        amount,
-        date: date || new Date(),
-        info,
-        categoryId,
-      },
+      data: updateThisData,
     });
 
     //Return the content of the data file in json format
