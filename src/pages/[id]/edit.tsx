@@ -1,28 +1,35 @@
-import { createExpense } from "@/api/expense";
+import { getExpense, updateExpense } from "@/api/expense";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export const ExpenseForm = () => {
+const Overview = () => {
   const router = useRouter();
-  const [amount, setAmount] = useState<number>(0);
+  const { id } = router.query;
+  const [amount, setAmount] = useState<number>();
   const [info, setInfo] = useState<string>("");
 
+  useEffect(() => {
+    if (id)
+      getExpense(parseInt(id as string)).then(({ amount, info }) => {
+        setAmount(amount);
+        setInfo(info || "");
+      });
+  }, [id]);
+
   const onSubmit = () => {
-    createExpense({
+    updateExpense(parseInt(id as string), {
       amount,
       info,
-      category: "Category",
-    }).then(({ id }) => {
-      console.log(id);
-      router.push(`/${id}`);
-    });
+    }).then(() => router.push(`/${id}`));
   };
+
+  const cancel = () => router.push(`/${id}`);
 
   return (
     <>
       <div className="pb-12 border-b border-gray-900/10">
         <h2 className="text-base font-semibold leading-7 text-text-100">
-          Create
+          Profile
         </h2>
 
         <div className="flex flex-col gap-4 md:flex-row">
@@ -69,13 +76,24 @@ export const ExpenseForm = () => {
           </div>
         </div>
       </div>
-      <button
-        type="submit"
-        className="px-3 py-2 border border-white rounded-full"
-        onClick={onSubmit}
-      >
-        Submit
-      </button>
+      <div className="flex flex-row gap-4">
+        <button
+          type="submit"
+          className="px-3 py-2 border border-white rounded-full"
+          onClick={onSubmit}
+        >
+          Save
+        </button>
+        <button
+          type="submit"
+          className="px-3 py-2 border border-white rounded-full"
+          onClick={cancel}
+        >
+          Cancel
+        </button>
+      </div>
     </>
   );
 };
+
+export default Overview;
